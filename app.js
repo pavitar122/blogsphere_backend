@@ -41,7 +41,7 @@ function comparePasswords(plainTextPassword, hashedPassword) {
 }
 
 app.get('/', (req, res) => {
-    res.send('Your app is up and running.');
+    res.send('Your app blogsphere app is running.');
   });
 
 app.post('/upload', upload.single('image'), async (req, res) => {
