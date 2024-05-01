@@ -8,6 +8,7 @@ import User from "./db/User.js";
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
 import "./db/cloudinary.js"
+import path from "path"
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -17,8 +18,12 @@ const app = express();
 app.use(express.json())
 app.use(cors());
 
+const _dirname = path.dirname("")
+const buildpath= path.join(_dirname, "./build")
+app.use(express.static(buildpath));
+
 const saltRounds = 10;
-const port = process.env.PORT || 5000;
+const port = 5000;
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -144,7 +149,7 @@ app.get("/get_user_blogs/:name", async (req, res) => {
 })
 
 
-app.get("/get_blog/:id", async (req, res) => {
+app.get("/blog/:id", async (req, res) => {
     let blog = await Blog.find({ _id: req.params.id });
     res.send(blog)
 })
@@ -169,9 +174,17 @@ app.post('/edit-blog/:id', async (req, res) => {
 })
 
 app.delete("/delete/:id", async(req, res) => {
-    let result = await Blog.findByIdAndDelete(req.params.id);
-    res.send(result)
-})
+    try {
+        const result = await Blog.findByIdAndDelete(req.params.id);
+        if (result) {
+            return res.status(200).send({ msg: "Blog was deleted." });
+        } else {
+            return res.status(404).send({ msg: "Blog not found." });
+        }
+    } catch (error) {
+        res.status(400).send({msg:"Blog was not deleated."})
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
